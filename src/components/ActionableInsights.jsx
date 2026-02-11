@@ -23,7 +23,7 @@ const InsightItem = ({ icon, title, description, type, bullets }) => {
           <Typography
             variant="subtitle2"
             sx={{
-              color: '#fff',
+              color: 'text.primary',
               fontWeight: 600,
               fontSize: 14,
               mb: 0.5,
@@ -34,7 +34,7 @@ const InsightItem = ({ icon, title, description, type, bullets }) => {
           <Typography
             variant="body2"
             sx={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'text.secondary',
               fontSize: 13,
               lineHeight: 1.6,
             }}
@@ -48,7 +48,7 @@ const InsightItem = ({ icon, title, description, type, bullets }) => {
                   component="li"
                   key={index}
                   sx={{
-                    color: 'rgba(255, 255, 255, 0.6)',
+                    color: 'text.secondary',
                     fontSize: 12,
                     lineHeight: 1.6,
                     mb: 0.5,
@@ -94,8 +94,6 @@ const ActionableInsights = () => {
     <Paper
       sx={{
         p: 3,
-        bgcolor: '#1a1f35',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
         height: '100%',
       }}
     >
@@ -106,11 +104,11 @@ const ActionableInsights = () => {
           gap: 1,
           mb: 3,
           pb: 2,
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          borderBottom: '1px solid rgba(148, 163, 184, 0.4)',
         }}
       >
         <LightbulbRoundedIcon sx={{ color: 'primary.main', fontSize: 20 }} />
-        <Typography variant="h6" sx={{ color: '#fff', fontWeight: 700, fontSize: 16 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 16 }}>
           Actionable Insights
         </Typography>
       </Box>

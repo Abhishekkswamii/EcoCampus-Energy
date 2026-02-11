@@ -7,10 +7,10 @@ const BuildingItem = ({ name, consumption, maxConsumption, color }) => {
   return (
     <Box sx={{ mb: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-        <Typography variant="body2" sx={{ color: '#fff', fontSize: 13, fontWeight: 500 }}>
+        <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 13, fontWeight: 500 }}>
           {name}
         </Typography>
-        <Typography variant="body2" sx={{ color: '#fff', fontSize: 13, fontWeight: 700 }}>
+        <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 13, fontWeight: 700 }}>
           {consumption} kWh
         </Typography>
       </Box>
@@ -20,7 +20,7 @@ const BuildingItem = ({ name, consumption, maxConsumption, color }) => {
         sx={{
           height: 8,
           borderRadius: 4,
-          bgcolor: 'rgba(255, 255, 255, 0.05)',
+          bgcolor: 'rgba(148, 163, 184, 0.3)',
           '& .MuiLinearProgress-bar': {
             bgcolor: color,
             borderRadius: 4,
@@ -46,8 +46,6 @@ const BuildingBreakdown = ({ data }) => {
     <Paper
       sx={{
         p: 3,
-        bgcolor: '#1a1f35',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
         height: '100%',
       }}
     >
@@ -58,7 +56,7 @@ const BuildingBreakdown = ({ data }) => {
           gap: 1,
           mb: 3,
           pb: 2,
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          borderBottom: '1px solid rgba(148, 163, 184, 0.4)',
         }}
       >
         <Box
@@ -69,7 +67,7 @@ const BuildingBreakdown = ({ data }) => {
             borderRadius: 1,
           }}
         />
-        <Typography variant="h6" sx={{ color: '#fff', fontWeight: 700, fontSize: 16 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 16 }}>
           Building Breakdown
         </Typography>
       </Box>

@@ -3,19 +3,23 @@ import { grey } from '@mui/material/colors';
 
 export const theme = createTheme({
   palette: {
-    mode: 'dark',
-    primary: { main: '#10b981' },
-    secondary: { main: '#3b82f6' },
-    background: {
-      default: '#0a0e1a',
-      paper: '#1a1f35',
+    mode: 'light',
+    primary: { main: '#1f7a5c' },
+    secondary: { main: '#1d4ed8' },
+    text: {
+      primary: '#0f172a',
+      secondary: '#475569',
     },
-    divider: alpha(grey[700], 0.12),
+    background: {
+      default: '#eef2f7',
+      paper: '#ffffff',
+    },
+    divider: alpha(grey[600], 0.18),
   },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 16 },
   typography: {
     fontFamily: [
-      'Inter',
+      'DM Sans',
       'system-ui',
       '-apple-system',
       'Segoe UI',
@@ -23,8 +27,9 @@ export const theme = createTheme({
       'Arial',
       'sans-serif',
     ].join(','),
-    h4: { fontWeight: 800, letterSpacing: -0.5 },
-    h6: { fontWeight: 700, letterSpacing: -0.2 },
+    h4: { fontFamily: 'Fraunces, serif', fontWeight: 700, letterSpacing: -0.4 },
+    h5: { fontFamily: 'Fraunces, serif', fontWeight: 700, letterSpacing: -0.3 },
+    h6: { fontFamily: 'Fraunces, serif', fontWeight: 600, letterSpacing: -0.2 },
     subtitle2: { fontWeight: 600 },
   },
   components: {
@@ -32,18 +37,40 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
+          border: `1px solid ${alpha(grey[300], 0.6)}`,
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          border: `1px solid ${alpha(grey[900], 0.08)}`,
+          border: `1px solid ${alpha(grey[300], 0.6)}`,
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          borderBottom: `1px solid ${alpha(grey[300], 0.7)}`,
         },
       },
     },
     MuiButton: {
       defaultProps: { disableElevation: true },
+    },
+    MuiToggleButtonGroup: {
+      styleOverrides: {
+        root: {
+          border: `1px solid ${alpha(grey[300], 0.7)}`,
+        },
+      },
+    },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          borderColor: alpha(grey[300], 0.7),
+        },
+      },
     },
   },
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import BarChartRoundedIcon from '@mui/icons-material/BarChartRounded';
+import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import BoltRoundedIcon from '@mui/icons-material/BoltRounded';
 
@@ -9,6 +10,7 @@ const Sidebar = ({ activeView = 'dashboard', onViewChange }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <DashboardRoundedIcon /> },
     { id: 'analytics', label: 'Analytics', icon: <BarChartRoundedIcon /> },
+    { id: 'alerts', label: 'Alerts', icon: <NotificationsRoundedIcon /> },
     { id: 'settings', label: 'Settings', icon: <SettingsRoundedIcon /> },
   ];
 
@@ -41,9 +43,17 @@ const Sidebar = ({ activeView = 'dashboard', onViewChange }) => {
         >
           <BoltRoundedIcon sx={{ color: '#fff', fontSize: 24 }} />
         </Box>
-        <Typography variant="h6" sx={{ fontWeight: 700, color: '#fff' }}>
-          EcoCampus
-        </Typography>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 700, color: '#fff' }}>
+            EcoCampus
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 11, display: 'block' }}>
+            Energy Monitor
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: 10, display: 'block' }}>
+            Real-time campus energy monitoring
+          </Typography>
+        </Box>
       </Box>
 
       {/* Menu Items */}

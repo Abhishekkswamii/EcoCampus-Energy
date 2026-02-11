@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from './Sidebar';
+import Header from './Header';
 import MetricsCards from './MetricsCards';
 import StackedAreaChart from './StackedAreaChart';
 import ActionableInsights from './ActionableInsights';
 import BuildingBreakdown from './BuildingBreakdown';
-import ViewSelector from './ViewSelector';
-import LocationSelector from './LocationSelector';
-import { Box, Container, Grid, Typography, Stack, Select, MenuItem, FormControl } from '@mui/material';
+import { Box, Button, Container, Grid, Paper, Stack, Typography } from '@mui/material';
 import { ENERGY_DATA, aggregateByBuilding, aggregateByCampus } from '../data/energyData';
 import { getBuildingById } from '../data/campusStructure';
 import { detectAnomalies, getUsageSummary } from '../utils/detectionLogic';
 import { generateInsights, generateRecommendations, calculateSavings } from '../utils/insightsEngine';
 
-const Dashboard = () => {
+const Dashboard = ({ activeView = 'dashboard', onViewChange, alertFeed = [] }) => {
   // State management
   const [view, setView] = useState('hourly'); // hourly, daily, weekly, monthly
   const [level, setLevel] = useState('campus'); // campus, building, room
@@ -90,104 +88,112 @@ const Dashboard = () => {
     setSelectedRoom(null);
   };
   
+  const currentLoad = summary?.total ? Math.round(summary.total) : 653;
+  const averageLoad = summary?.average ? Math.round(summary.average) : 627;
+  const usdToInr = 82.5;
+  const ratePerKwhInr = 0.15 * usdToInr;
+  const dailyCost = ((summary?.total || 653) * ratePerKwhInr).toFixed(2);
+
+  const headerAlerts = alertFeed.length ? alertFeed : alerts;
+
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#0a0e1a' }}>
-      {/* Sidebar */}
-      <Sidebar activeView="dashboard" />
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        backgroundImage:
+          'radial-gradient(circle at 12% 20%, rgba(31, 122, 92, 0.12), transparent 45%), radial-gradient(circle at 85% 2%, rgba(29, 78, 216, 0.12), transparent 45%), linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%)',
+      }}
+    >
+      <Header activeView={activeView} onViewChange={onViewChange} notifications={headerAlerts} />
 
-      {/* Main Content */}
-      <Box sx={{ flex: 1, ml: '240px' }}>
-        {/* Header */}
-        <Box
-          sx={{
-            p: 3,
-            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-            bgcolor: '#141928',
-          }}
-        >
-          <Stack direction="row" alignItems="center" justifyContent="space-between">
-            <Box>
-              <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700, fontSize: 28, mb: 0.5 }}>
-                Energy Monitor
+      <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Grid container spacing={3} sx={{ mb: 1 }}>
+          <Grid item xs={12} lg={8}>
+            <Paper sx={{ p: { xs: 2.5, md: 3 }, height: '100%' }}>
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="overline" sx={{ color: 'text.secondary', letterSpacing: 1 }}>
+                    Campus Overview
+                  </Typography>
+                  <Typography variant="h4" sx={{ mt: 0.5 }}>
+                    Good morning, Energy Ops Team
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                    Real-time load tracking across Green Valley University.
+                  </Typography>
+                </Box>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={4}>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">
+                        Current Load
+                      </Typography>
+                      <Typography variant="h5">{currentLoad} kWh</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Avg {averageLoad} kWh
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">
+                        Daily Cost
+                      </Typography>
+                      <Typography variant="h5">₹{dailyCost}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Based on current usage
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">
+                        Active Alerts
+                      </Typography>
+                      <Typography variant="h5">{alerts.length}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Monitoring in progress
+                      </Typography>
+                    </Box>
+                  </Grid>
+                </Grid>
+
+                <Stack direction="row" spacing={1.5} flexWrap="wrap">
+                  <Button variant="contained" color="primary" sx={{ borderRadius: 999 }}>
+                    View Usage
+                  </Button>
+                  <Button variant="outlined" color="primary" sx={{ borderRadius: 999 }}>
+                    Download Report
+                  </Button>
+                </Stack>
+              </Stack>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} lg={4}>
+            <Paper sx={{ p: 3, height: '100%' }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Usage Insights
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 14 }}>
-                Real-time campus energy monitoring
-              </Typography>
-            </Box>
+              <MetricsCards summary={summary} alerts={alerts} />
+            </Paper>
+          </Grid>
+        </Grid>
 
-            {/* Time Range & Building Selectors */}
-            <Stack direction="row" spacing={2}>
-              <FormControl size="small" sx={{ minWidth: 150 }}>
-                <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)', mb: 0.5, fontSize: 11 }}>
-                  Building
-                </Typography>
-                <Select
-                  value="all"
-                  sx={{
-                    color: '#fff',
-                    bgcolor: '#1a1f35',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                    '& .MuiSvgIcon-root': { color: 'rgba(255, 255, 255, 0.6)' },
-                  }}
-                >
-                  <MenuItem value="all">All Buildings</MenuItem>
-                  <MenuItem value="library">Library</MenuItem>
-                  <MenuItem value="dorms">Dorms</MenuItem>
-                  <MenuItem value="admin">Admin</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl size="small" sx={{ minWidth: 150 }}>
-                <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)', mb: 0.5, fontSize: 11 }}>
-                  Time Range
-                </Typography>
-                <Select
-                  value={view}
-                  onChange={(e) => setView(e.target.value)}
-                  sx={{
-                    color: '#fff',
-                    bgcolor: '#1a1f35',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                    '& .MuiSvgIcon-root': { color: 'rgba(255, 255, 255, 0.6)' },
-                  }}
-                >
-                  <MenuItem value="hourly">Hourly</MenuItem>
-                  <MenuItem value="daily">Daily</MenuItem>
-                  <MenuItem value="weekly">Weekly</MenuItem>
-                  <MenuItem value="monthly">Monthly</MenuItem>
-                </Select>
-              </FormControl>
-            </Stack>
-          </Stack>
+        <Box sx={{ mb: 3 }}>
+          <StackedAreaChart view={view} height={380} />
         </Box>
 
-        {/* Content */}
-        <Container maxWidth={false} disableGutters sx={{ py: 4 }}>
-          {/* Metrics Cards */}
-          <Box sx={{ px: 4, mb: 3 }}>
-            <MetricsCards summary={summary} alerts={alerts} />
-          </Box>
-
-          {/* Full-width Chart */}
-          <Box sx={{ mb: 3 }}>
-            <StackedAreaChart view={view} height={380} />
-          </Box>
-
-          {/* Insights & Breakdown */}
-          <Box sx={{ px: 4 }}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} lg={8}>
-                <ActionableInsights />
-              </Grid>
-              <Grid item xs={12} lg={4}>
-                <BuildingBreakdown data={filteredData} />
-              </Grid>
-            </Grid>
-          </Box>
-        </Container>
-      </Box>
+        <Grid container spacing={3}>
+          <Grid item xs={12} lg={8}>
+            <ActionableInsights />
+          </Grid>
+          <Grid item xs={12} lg={4}>
+            <BuildingBreakdown data={filteredData} />
+          </Grid>
+        </Grid>
+      </Container>
     </Box>
   );
 };

@@ -157,7 +157,9 @@ export const calculateSavings = (summary, alerts) => {
   const generalSavings = summary.total * 0.12;
   
   const totalSavings = Math.round((potentialSavings + generalSavings) * 10) / 10;
-  const costSavings = Math.round(totalSavings * 0.15 * 10) / 10; // Assuming $0.15 per kWh
+  const usdToInr = 82.5;
+  const ratePerKwhInr = 0.15 * usdToInr; // Assuming $0.15 per kWh
+  const costSavings = Math.round(totalSavings * ratePerKwhInr * 10) / 10;
   
   return {
     energySavings: totalSavings,

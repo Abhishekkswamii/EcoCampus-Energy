@@ -48,7 +48,7 @@ const SummaryPanel = ({ summary, recommendations, savings, level, location }) =>
             </div>
             <div>
               <p className="text-xs opacity-90">Cost</p>
-              <p className="text-xl font-bold">${savings.costSavings}</p>
+              <p className="text-xl font-bold">₹{savings.costSavings}</p>
             </div>
             <div>
               <p className="text-xs opacity-90">Reduction</p>
