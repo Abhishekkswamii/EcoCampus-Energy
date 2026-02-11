@@ -48,9 +48,9 @@ const BuildingBreakdown = ({ data }) => {
     <Paper
       sx={{
         p: { xs: 2, sm: 2.5 },
-        height: '60%',
-        minHeight: 350,
-        width: '300%',
+        height: { xs: '100%', lg: '60%' },
+        minHeight: { xs: 'auto', lg: 350 },
+        width: { xs: '100%', lg: '300%' },
         borderRadius: 3,
         bgcolor: (t) => (t.palette.mode === 'dark' ? '#0f172a' : '#f8fafc'),
         color: 'text.primary',

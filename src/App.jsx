@@ -3,6 +3,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import Dashboard from './components/Dashboard';
 import Analytics from './components/Analytics';
 import Alerts from './components/Alerts';
+import Usage from './components/Usage';
 import { ENERGY_DATA } from './data/energyData';
 import { buildUnifiedAlertFeed } from './utils/alertFeed';
 import { advanceLiveEnergy } from './utils/liveMock';
@@ -19,7 +20,7 @@ function App() {
     if (stored === 'light' || stored === 'dark') {
       return stored;
     }
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return 'dark';
   });
 
   useEffect(() => {
@@ -60,6 +61,10 @@ function App() {
 
   if (activeView === 'analytics') {
     viewContent = <Analytics {...sharedProps} />;
+  }
+
+  if (activeView === 'usage') {
+    viewContent = <Usage {...sharedProps} energyData={energyData} />;
   }
 
   return (

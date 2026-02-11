@@ -29,9 +29,9 @@ const Header = ({
   const count = Array.isArray(notifications) ? notifications.length : 0;
   const navItems = [
     { id: 'dashboard', label: 'Home' },
-    { id: 'analytics', label: 'Usage' },
+    { id: 'usage', label: 'Usage' },
+    { id: 'analytics', label: 'Analytics' },
     { id: 'alerts', label: 'Alerts' },
-    { id: 'settings', label: 'Service' },
   ];
 
   return (

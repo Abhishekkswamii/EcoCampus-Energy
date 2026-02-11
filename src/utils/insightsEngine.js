@@ -1,9 +1,218 @@
-// Generate actionable insights and tips based on usage patterns
+// Generate actionable insights and recommendations for Usage page
 
+/**
+ * Generate insights based on anomaly detection results
+ */
+export const generateInsightsFromAnomalies = (anomalyResult, summaryStats) => {
+  const insights = [];
+
+  if (!anomalyResult.hasAnomalies && !anomalyResult.spikes.hasSpikes) {
+    insights.push({
+      title: 'Optimal Energy Usage',
+      finding: 'Your energy consumption patterns are within normal ranges.',
+      impact: 'No significant waste or inefficiencies detected.',
+      action: 'Continue monitoring and maintain current practices.',
+      icon: '✅',
+      severity: 'success'
+    });
+    return insights;
+  }
+
+  // After-hours anomaly insights
+  const afterHours = anomalyResult.anomalies.find(a => a.type === 'after-hours');
+  if (afterHours) {
+    insights.push({
+      title: 'High After-Hours Consumption',
+      finding: `After-hours usage is ${afterHours.percentageHigher}% higher than working hours (${afterHours.avgAfter} kWh vs ${afterHours.avgWorking} kWh).`,
+      impact: `Estimated waste: ${afterHours.totalWaste} kWh = ₹${afterHours.estimatedCost} in energy loss.`,
+      action: afterHours.recommendation,
+      icon: '🌙',
+      severity: afterHours.severity
+    });
+  }
+
+  // Weekend anomaly insights
+  const weekend = anomalyResult.anomalies.find(a => a.type === 'weekend');
+  if (weekend) {
+    insights.push({
+      title: 'Excessive Weekend Usage',
+      finding: `Weekend consumption is ${weekend.percentageOfWeekday}% of weekday levels, suggesting unnecessary equipment running.`,
+      impact: `Estimated waste: ${weekend.totalWaste} kWh = ₹${weekend.estimatedCost}.`,
+      action: weekend.recommendation,
+      icon: '📅',
+      severity: weekend.severity
+    });
+  }
+
+  // Baseline creep insights
+  const baseline = anomalyResult.anomalies.find(a => a.type === 'baseline-creep');
+  if (baseline) {
+    insights.push({
+      title: 'Rising Baseline Consumption',
+      finding: `Energy consumption has increased by ${baseline.percentageIncrease}% over the period (from ${baseline.avgFirst} to ${baseline.avgSecond} kWh).`,
+      impact: `Extra consumption: ${baseline.extraConsumption} kWh = ₹${baseline.estimatedCost}.`,
+      action: baseline.recommendation,
+      icon: '📈',
+      severity: baseline.severity
+    });
+  }
+
+  // Spike insights
+  if (anomalyResult.spikes.hasSpikes) {
+    const topSpike = anomalyResult.spikes.spikes[0];
+    insights.push({
+      title: 'Consumption Spikes Detected',
+      finding: `${anomalyResult.spikes.spikes.length} spike(s) found. Peak spike: ${topSpike.consumption} kWh (${topSpike.percentageAbove}% above average).`,
+      impact: `Spikes indicate faulty equipment, unauthorized high-power devices, or HVAC issues.`,
+      action: 'Investigate equipment logs during spike times. Check for malfunctioning AC units or unauthorized heaters.',
+      icon: '⚡',
+      severity: 'high'
+    });
+  }
+
+  return insights;
+};
+
+/**
+ * Generate general recommendations based on building/room type
+ */
+export const generateLocationRecommendations = (buildingId, roomId, campusStructure) => {
+  const recommendations = [];
+
+  // Find the room/building names
+  let locationName = 'Campus';
+  let locationType = 'general';
+
+  if (buildingId && buildingId !== 'all') {
+    const building = campusStructure.buildings.find(b => b.id === buildingId);
+    if (building) {
+      locationName = building.name;
+      locationType = building.id;
+    }
+  }
+
+  if (roomId && roomId !== 'all') {
+    const room = campusStructure.buildings
+      .flatMap(b => b.rooms)
+      .find(r => r.id === roomId);
+    if (room) {
+      locationName = room.name;
+      if (room.name.includes('Lab')) locationType = 'lab';
+      else if (room.name.includes('Hostel')) locationType = 'hostel';
+      else if (room.name.includes('Lecture')) locationType = 'lecture';
+      else if (room.name.includes('Library') || room.name.includes('Reading')) locationType = 'library';
+      else if (room.name.includes('Office') || room.name.includes('Admin')) locationType = 'office';
+    }
+  }
+
+  // Location-specific recommendations
+  switch (locationType) {
+    case 'lab':
+      recommendations.push({
+        title: 'Computer Lab Best Practices',
+        tips: [
+          'Enable hibernate mode after 15 minutes of inactivity',
+          'Use thin clients instead of full PCs where possible (60% energy savings)',
+          'Install smart power strips to eliminate phantom loads',
+          'Schedule automatic shutdowns at 9 PM on weekdays, 6 PM on weekends'
+        ],
+        icon: '💻'
+      });
+      break;
+
+    case 'hostel':
+      recommendations.push({
+        title: 'Hostel Energy Management',
+        tips: [
+          'Implement floor-wise power monitoring and display dashboards',
+          'Run monthly energy-saving competitions with incentives',
+          'Restrict high-power appliances (heaters, kettles) with smart meters',
+          'Install solar water heaters to reduce electric geysers load'
+        ],
+        icon: '🏠'
+      });
+      break;
+
+    case 'lecture':
+      recommendations.push({
+        title: 'Lecture Hall Optimization',
+        tips: [
+          'Install occupancy sensors for automatic lighting control',
+          'Use natural ventilation when outdoor temperature is 20-25°C',
+          'Pre-cool halls 30 minutes before class, then raise AC temp by 2°C',
+          'Ensure projectors and audio systems auto-off after 15 minutes'
+        ],
+        icon: '🎓'
+      });
+      break;
+
+    case 'library':
+      recommendations.push({
+        title: 'Library Energy Efficiency',
+        tips: [
+          'Use LED task lighting instead of full overhead lighting',
+          'Zone HVAC by occupancy (reading rooms vs storage areas)',
+          'Implement daylight harvesting with automated dimming',
+          'Set computer sleep timers to 10 minutes'
+        ],
+        icon: '📚'
+      });
+      break;
+
+    case 'office':
+      recommendations.push({
+        title: 'Office Area Efficiency',
+        tips: [
+          'Encourage "last one out" protocols to check all equipment is off',
+          'Replace desktop computers with laptops (70% less energy)',
+          'Set printer/copier sleep timers to 5 minutes',
+          'Use smart thermostats with presence detection'
+        ],
+        icon: '🏢'
+      });
+      break;
+
+    default:
+      recommendations.push({
+        title: 'Campus-Wide Recommendations',
+        tips: [
+          'Upgrade to LED lighting campus-wide (saves 75% on lighting costs)',
+          'Install solar panels on building rooftops (aim for 30% renewable energy)',
+          'Conduct quarterly energy audits to identify new inefficiencies',
+          'Launch campus-wide awareness campaigns and track improvements'
+        ],
+        icon: '🌍'
+      });
+  }
+
+  return recommendations;
+};
+
+/**
+ * Calculate potential savings
+ */
+export const calculatePotentialSavings = (anomalyResult) => {
+  const totalWaste = anomalyResult.summary.totalWaste;
+  const totalCost = anomalyResult.summary.totalCost;
+
+  // Estimate monthly and yearly savings if anomalies are fixed
+  const dailyWaste = totalWaste / 7; // Assuming data is for a week
+  const monthlySavings = Math.round(dailyWaste * 30 * 8); // ₹8 per kWh
+  const yearlySavings = Math.round(monthlySavings * 12);
+
+  return {
+    weeklyWaste: Math.round(totalWaste * 10) / 10,
+    weeklyCost: totalCost,
+    monthlySavings,
+    yearlySavings,
+    message: `By addressing these issues, you could save approximately ₹${monthlySavings.toLocaleString()}/month or ₹${yearlySavings.toLocaleString()}/year.`
+  };
+};
+
+// Legacy function (keep for compatibility with existing components)
 export const generateInsights = (data, alerts, summary) => {
   const insights = [];
   
-  // Always provide general tips
   insights.push({
     category: 'General',
     icon: '💡',
@@ -11,10 +220,9 @@ export const generateInsights = (data, alerts, summary) => {
   });
   
   // Insights based on alerts
-  if (alerts.length > 0) {
+  if (alerts && alerts.length > 0) {
     const spikeAlerts = alerts.filter(a => a.type === 'spike');
     const afterHoursAlerts = alerts.filter(a => a.type === 'after-hours');
-    const wastefulAlerts = alerts.filter(a => a.type === 'wasteful-pattern');
     
     if (spikeAlerts.length > 0) {
       insights.push({
@@ -33,65 +241,9 @@ export const generateInsights = (data, alerts, summary) => {
         priority: 'medium'
       });
     }
-    
-    if (wastefulAlerts.length > 0) {
-      insights.push({
-        category: 'Waste Reduction',
-        icon: '♻️',
-        tip: 'Persistent night-time usage suggests idle servers or equipment. Conduct an energy audit to identify and optimize.',
-        priority: 'medium'
-      });
-    }
   }
   
-  // Insights based on peak hour
-  if (summary && summary.peakHour) {
-    if (summary.peakHour >= 14 && summary.peakHour <= 16) {
-      insights.push({
-        category: 'Peak Load',
-        icon: '📊',
-        tip: 'Peak usage during 2-4 PM (likely AC load). Consider pre-cooling buildings at 12 PM and raising thermostat by 2°C at 2 PM.',
-      });
-    }
-  }
-  
-  // Time-of-use insights
-  insights.push({
-    category: 'Cost Savings',
-    icon: '💰',
-    tip: 'Shift high-energy tasks (laundry, water heating) to off-peak hours (10 PM - 6 AM) if your utility offers time-based rates.',
-  });
-  
-  // Room-specific insights
-  if (data && data.length > 0) {
-    const roomName = data[0].roomName;
-    
-    if (roomName && roomName.includes('Lab')) {
-      insights.push({
-        category: 'Lab Efficiency',
-        icon: '🔬',
-        tip: 'Computer labs: Enable power-saving modes and enforce automatic logoff after 15 minutes of inactivity.',
-      });
-    }
-    
-    if (roomName && roomName.includes('Hostel')) {
-      insights.push({
-        category: 'Hostel Management',
-        icon: '🏠',
-        tip: 'Hostel blocks: Install smart meters per floor, promote energy-saving contests, and restrict high-power appliances.',
-      });
-    }
-    
-    if (roomName && roomName.includes('Lecture')) {
-      insights.push({
-        category: 'Lecture Halls',
-        icon: '🎓',
-        tip: 'Lecture halls: Use occupancy sensors to auto-dim lights and adjust HVAC when unoccupied.',
-      });
-    }
-  }
-  
-  return insights.slice(0, 5); // Return top 5 insights
+  return insights.slice(0, 5);
 };
 
 // Generate specific recommendations based on location
