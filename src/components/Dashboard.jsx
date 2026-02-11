@@ -10,7 +10,7 @@ import { getBuildingById } from '../data/campusStructure';
 import { detectAnomalies, getUsageSummary } from '../utils/detectionLogic';
 import { generateInsights, generateRecommendations, calculateSavings } from '../utils/insightsEngine';
 
-const Dashboard = ({ activeView = 'dashboard', onViewChange, alertFeed = [] }) => {
+const Dashboard = ({ activeView = 'dashboard', onViewChange, alertFeed = [], energyData = [] }) => {
   // State management
   const [view, setView] = useState('hourly'); // hourly, daily, weekly, monthly
   const [level, setLevel] = useState('campus'); // campus, building, room
@@ -29,24 +29,25 @@ const Dashboard = ({ activeView = 'dashboard', onViewChange, alertFeed = [] }) =
   
   // Filter and process data based on selections
   useEffect(() => {
+    const dataset = energyData.length ? energyData : ENERGY_DATA;
     let data = [];
     let locationName = '';
     
     if (level === 'campus') {
       // Aggregate all data by timestamp
-      data = aggregateByCampus(ENERGY_DATA);
+      data = aggregateByCampus(dataset);
       locationName = 'Entire Campus';
     } else if (level === 'building' && selectedBuilding) {
       // Filter by building
       const building = getBuildingById(selectedBuilding);
       const buildingRoomIds = building.rooms.map(r => r.id);
-      const buildingData = ENERGY_DATA.filter(d => buildingRoomIds.includes(d.roomId));
+      const buildingData = dataset.filter(d => buildingRoomIds.includes(d.roomId));
       data = aggregateByBuilding(buildingData);
       data = data.filter(d => d.buildingId === selectedBuilding);
       locationName = building.name;
     } else if (level === 'room' && selectedRoom) {
       // Filter by specific room
-      data = ENERGY_DATA.filter(d => d.roomId === selectedRoom);
+      data = dataset.filter(d => d.roomId === selectedRoom);
       locationName = data[0]?.roomName || 'Room';
     }
     
@@ -55,7 +56,7 @@ const Dashboard = ({ activeView = 'dashboard', onViewChange, alertFeed = [] }) =
     setAlerts(detectedAlerts);
     
     // Calculate summary
-    const usageSummary = getUsageSummary(data, ENERGY_DATA, level);
+    const usageSummary = getUsageSummary(data, dataset, level);
     setSummary(usageSummary);
     
     // Generate insights
@@ -71,7 +72,7 @@ const Dashboard = ({ activeView = 'dashboard', onViewChange, alertFeed = [] }) =
     setSavings(potentialSavings);
     
     setFilteredData(data);
-  }, [level, selectedBuilding, selectedRoom]);
+  }, [energyData, level, selectedBuilding, selectedRoom]);
   
   const handleLevelChange = (newLevel) => {
     setLevel(newLevel);

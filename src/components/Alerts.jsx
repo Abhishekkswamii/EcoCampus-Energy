@@ -39,6 +39,31 @@ const Alerts = ({ activeView = 'alerts', onViewChange, alertFeed = [] }) => {
   const [rangeFilter, setRangeFilter] = useState('7d');
   const [search, setSearch] = useState('');
 
+  const actionPlaybook = useMemo(
+    () => ({
+      spike: [
+        'Confirm meter readings and isolate the affected zone.',
+        'Throttle high-draw equipment for 30-60 minutes.',
+        'Schedule a follow-up inspection during peak hour.',
+      ],
+      'after-hours': [
+        'Check idle HVAC and lighting schedules for overrides.',
+        'Shut down non-critical loads after closing time.',
+        'Notify facilities if usage persists overnight.',
+      ],
+      'wasteful-pattern': [
+        'Audit equipment with steady overnight draw.',
+        'Reduce base load with power management profiles.',
+        'Plan a maintenance window for aging devices.',
+      ],
+      default: [
+        'Verify the sensor stream for anomalies.',
+        'Escalate to facilities if pattern repeats.',
+      ],
+    }),
+    []
+  );
+
   const locations = useMemo(() => {
     const names = Array.from(new Set(alertFeed.map((alert) => alert.location).filter(Boolean)));
     return names.sort((a, b) => a.localeCompare(b));
@@ -121,6 +146,86 @@ const Alerts = ({ activeView = 'alerts', onViewChange, alertFeed = [] }) => {
     return { total, high, spikes, afterHours };
   }, [filteredAlerts]);
 
+  const actionSummary = useMemo(() => {
+    if (!filteredAlerts.length) {
+      return {
+        topLocation: 'No alerts yet',
+        topType: 'N/A',
+        peakSpikeHour: 'N/A',
+        highestLoad: 'N/A',
+        steps: actionPlaybook.default,
+      };
+    }
+
+    const locationCounts = {};
+    const typeCounts = {};
+    const loadByLocation = {};
+
+    filteredAlerts.forEach((alert) => {
+      if (alert.location) {
+        locationCounts[alert.location] = (locationCounts[alert.location] || 0) + 1;
+      }
+      if (alert.type) {
+        typeCounts[alert.type] = (typeCounts[alert.type] || 0) + 1;
+      }
+      if (typeof alert.consumption === 'number' && alert.location) {
+        const entry = loadByLocation[alert.location] || { total: 0, count: 0 };
+        entry.total += alert.consumption;
+        entry.count += 1;
+        loadByLocation[alert.location] = entry;
+      }
+    });
+
+    const topLocation = Object.keys(locationCounts).sort(
+      (a, b) => locationCounts[b] - locationCounts[a]
+    )[0];
+
+    const topType = Object.keys(typeCounts).sort(
+      (a, b) => typeCounts[b] - typeCounts[a]
+    )[0];
+
+    let highestLoad = 'N/A';
+    const loadEntries = Object.entries(loadByLocation);
+    if (loadEntries.length) {
+      const [location, stats] = loadEntries.sort((a, b) => {
+        const avgA = a[1].total / a[1].count;
+        const avgB = b[1].total / b[1].count;
+        return avgB - avgA;
+      })[0];
+      const avg = stats.total / stats.count;
+      highestLoad = `${location} (${avg.toFixed(1)} kWh avg)`;
+    }
+
+    const spikeAlerts = filteredAlerts.filter((alert) => alert.type === 'spike');
+    const hourCounts = {};
+    spikeAlerts.forEach((alert) => {
+      const time = new Date(alert.timestamp);
+      if (!Number.isNaN(time.getTime())) {
+        const hour = time.getHours();
+        hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+      }
+    });
+
+    let peakSpikeHour = 'N/A';
+    const hours = Object.keys(hourCounts);
+    if (hours.length) {
+      const peakHour = Number(
+        hours.sort((a, b) => hourCounts[b] - hourCounts[a])[0]
+      );
+      peakSpikeHour = `${String(peakHour).padStart(2, '0')}:00`;
+    }
+
+    const steps = actionPlaybook[topType] || actionPlaybook.default;
+
+    return {
+      topLocation: topLocation || 'N/A',
+      topType: formatAlertType(topType),
+      peakSpikeHour,
+      highestLoad,
+      steps,
+    };
+  }, [actionPlaybook, filteredAlerts]);
+
   return (
     <Box
       sx={{
@@ -175,6 +280,43 @@ const Alerts = ({ activeView = 'alerts', onViewChange, alertFeed = [] }) => {
             </Paper>
           </Grid>
         </Grid>
+
+        <Paper sx={{ p: 3, mb: 3 }}>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ md: 'center' }}>
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="h6">Action Suggestions</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
+                Focus areas and quick actions based on the current alert window.
+              </Typography>
+              <Stack spacing={0.5} sx={{ mt: 2 }}>
+                <Typography variant="body2">
+                  Highest load: <strong>{actionSummary.highestLoad}</strong>
+                </Typography>
+                <Typography variant="body2">
+                  Most affected location: <strong>{actionSummary.topLocation}</strong>
+                </Typography>
+                <Typography variant="body2">
+                  Top alert type: <strong>{actionSummary.topType}</strong>
+                </Typography>
+                <Typography variant="body2">
+                  Peak spike hour: <strong>{actionSummary.peakSpikeHour}</strong>
+                </Typography>
+              </Stack>
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                Recommended next steps
+              </Typography>
+              <Stack spacing={0.75}>
+                {actionSummary.steps.map((step, index) => (
+                  <Typography key={step} variant="body2">
+                    {index + 1}. {step}
+                  </Typography>
+                ))}
+              </Stack>
+            </Box>
+          </Stack>
+        </Paper>
 
         <Paper sx={{ p: 3, mb: 3 }}>
           <Typography variant="h6" sx={{ mb: 1 }}>
