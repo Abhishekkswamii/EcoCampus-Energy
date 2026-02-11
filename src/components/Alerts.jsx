@@ -31,7 +31,13 @@ const rangeOptions = [
   { id: 'all', label: 'All history', hours: null },
 ];
 
-const Alerts = ({ activeView = 'alerts', onViewChange, alertFeed = [] }) => {
+const Alerts = ({
+  activeView = 'alerts',
+  onViewChange,
+  alertFeed = [],
+  themeMode,
+  onToggleTheme,
+}) => {
   const [scopeFilter, setScopeFilter] = useState('all');
   const [severityFilter, setSeverityFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -231,11 +237,19 @@ const Alerts = ({ activeView = 'alerts', onViewChange, alertFeed = [] }) => {
       sx={{
         minHeight: '100vh',
         bgcolor: 'background.default',
-        backgroundImage:
-          'radial-gradient(circle at 12% 20%, rgba(31, 122, 92, 0.12), transparent 45%), radial-gradient(circle at 85% 2%, rgba(29, 78, 216, 0.12), transparent 45%), linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%)',
+        backgroundImage: (t) =>
+          t.palette.mode === 'dark'
+            ? 'repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.1) 0, rgba(148, 163, 184, 0.1) 1px, transparent 1px, transparent 26px), repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.1) 0, rgba(148, 163, 184, 0.1) 1px, transparent 1px, transparent 26px), radial-gradient(circle at 18% 12%, rgba(30, 41, 59, 0.45), transparent 58%), linear-gradient(180deg, #0f172a 0%, #162033 100%)'
+            : 'repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.12) 0, rgba(148, 163, 184, 0.12) 1px, transparent 1px, transparent 26px), repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.12) 0, rgba(148, 163, 184, 0.12) 1px, transparent 1px, transparent 26px), radial-gradient(circle at 18% 12%, rgba(15, 23, 42, 0.08), transparent 45%), linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)',
       }}
     >
-      <Header activeView={activeView} onViewChange={onViewChange} notifications={alertFeed} />
+      <Header
+        activeView={activeView}
+        onViewChange={onViewChange}
+        notifications={alertFeed}
+        themeMode={themeMode}
+        onToggleTheme={onToggleTheme}
+      />
 
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3} sx={{ mb: 2 }}>

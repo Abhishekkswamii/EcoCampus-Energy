@@ -39,7 +39,13 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const Analytics = ({ activeView = 'analytics', onViewChange, alertFeed = [] }) => {
+const Analytics = ({
+  activeView = 'analytics',
+  onViewChange,
+  alertFeed = [],
+  themeMode,
+  onToggleTheme,
+}) => {
   const { campus, locations, hourlyTotals, unit, currency } = analyticsData;
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [timeRange, setTimeRange] = useState('hours');
@@ -185,8 +191,11 @@ const Analytics = ({ activeView = 'analytics', onViewChange, alertFeed = [] }) =
         elevation={8}
         sx={{
           p: 2,
-          bgcolor: '#ffffff',
-          border: '1px solid rgba(148, 163, 184, 0.4)',
+          bgcolor: 'background.paper',
+          border: (t) =>
+            t.palette.mode === 'dark'
+              ? '1px solid rgba(71, 85, 105, 0.6)'
+              : '1px solid rgba(148, 163, 184, 0.4)',
         }}
       >
         <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 1 }}>
@@ -204,11 +213,19 @@ const Analytics = ({ activeView = 'analytics', onViewChange, alertFeed = [] }) =
       sx={{
         minHeight: '100vh',
         bgcolor: 'background.default',
-        backgroundImage:
-          'radial-gradient(circle at 12% 20%, rgba(31, 122, 92, 0.12), transparent 45%), radial-gradient(circle at 85% 2%, rgba(29, 78, 216, 0.12), transparent 45%), linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%)',
+        backgroundImage: (t) =>
+          t.palette.mode === 'dark'
+            ? 'repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.1) 0, rgba(148, 163, 184, 0.1) 1px, transparent 1px, transparent 26px), repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.1) 0, rgba(148, 163, 184, 0.1) 1px, transparent 1px, transparent 26px), radial-gradient(circle at 18% 12%, rgba(30, 41, 59, 0.45), transparent 58%), linear-gradient(180deg, #0f172a 0%, #162033 100%)'
+            : 'repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.12) 0, rgba(148, 163, 184, 0.12) 1px, transparent 1px, transparent 26px), repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.12) 0, rgba(148, 163, 184, 0.12) 1px, transparent 1px, transparent 26px), radial-gradient(circle at 18% 12%, rgba(15, 23, 42, 0.08), transparent 45%), linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)',
       }}
     >
-      <Header activeView={activeView} onViewChange={onViewChange} notifications={alertFeed} />
+      <Header
+        activeView={activeView}
+        onViewChange={onViewChange}
+        notifications={alertFeed}
+        themeMode={themeMode}
+        onToggleTheme={onToggleTheme}
+      />
 
       <Box sx={{ py: 3, px: { xs: 2, md: 4 } }}>
         <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -253,7 +270,9 @@ const Analytics = ({ activeView = 'analytics', onViewChange, alertFeed = [] }) =
             <Select
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
-              sx={{ bgcolor: '#fff' }}
+              sx={{
+                bgcolor: (t) => (t.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.6)' : '#fff'),
+              }}
             >
               <MenuItem value="all">All Locations</MenuItem>
               {locations.map((location) => (
@@ -280,7 +299,13 @@ const Analytics = ({ activeView = 'analytics', onViewChange, alertFeed = [] }) =
                 <Typography variant="caption" sx={{ color: 'text.secondary', mb: 0.5, fontSize: 11 }}>
                   Time Range
                 </Typography>
-                <Select value={timeRange} onChange={(e) => setTimeRange(e.target.value)} sx={{ bgcolor: '#fff' }}>
+                <Select
+                  value={timeRange}
+                  onChange={(e) => setTimeRange(e.target.value)}
+                  sx={{
+                    bgcolor: (t) => (t.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.6)' : '#fff'),
+                  }}
+                >
                   <MenuItem value="hours">Hours (3-hr)</MenuItem>
                   <MenuItem value="days">Daily</MenuItem>
                   <MenuItem value="weeks">Weekly</MenuItem>
@@ -292,7 +317,10 @@ const Analytics = ({ activeView = 'analytics', onViewChange, alertFeed = [] }) =
                 value={viewMode}
                 exclusive
                 onChange={(_, value) => value && setViewMode(value)}
-                sx={{ borderRadius: 999, bgcolor: '#fff' }}
+                sx={{
+                  borderRadius: 999,
+                  bgcolor: (t) => (t.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.6)' : '#fff'),
+                }}
               >
                 <ToggleButton
                   value="table"

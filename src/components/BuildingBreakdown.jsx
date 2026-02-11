@@ -7,7 +7,7 @@ const BuildingItem = ({ name, consumption, maxConsumption, color }) => {
   return (
     <Box sx={{ mb: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-        <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 13, fontWeight: 500 }}>
+        <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 13, fontWeight: 600 }}>
           {name}
         </Typography>
         <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 13, fontWeight: 700 }}>
@@ -20,10 +20,12 @@ const BuildingItem = ({ name, consumption, maxConsumption, color }) => {
         sx={{
           height: 8,
           borderRadius: 4,
-          bgcolor: 'rgba(148, 163, 184, 0.3)',
+          bgcolor: (t) =>
+            t.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.6)' : 'rgba(148, 163, 184, 0.3)',
           '& .MuiLinearProgress-bar': {
             bgcolor: color,
             borderRadius: 4,
+            boxShadow: (t) => (t.palette.mode === 'dark' ? `0 0 10px ${color}66` : 'none'),
           },
         }}
       />
@@ -45,8 +47,21 @@ const BuildingBreakdown = ({ data }) => {
   return (
     <Paper
       sx={{
-        p: 3,
-        height: '100%',
+        p: { xs: 2, sm: 2.5 },
+        height: '60%',
+        minHeight: 350,
+        width: '300%',
+        borderRadius: 3,
+        bgcolor: (t) => (t.palette.mode === 'dark' ? '#0f172a' : '#f8fafc'),
+        color: 'text.primary',
+        border: (t) =>
+          t.palette.mode === 'dark'
+            ? '1px solid rgba(30, 41, 59, 0.9)'
+            : '1px solid rgba(148, 163, 184, 0.45)',
+        boxShadow: (t) =>
+          t.palette.mode === 'dark'
+            ? '0 22px 40px rgba(15, 23, 42, 0.4)'
+            : '0 18px 34px rgba(15, 23, 42, 0.1)',
       }}
     >
       <Box
@@ -54,22 +69,19 @@ const BuildingBreakdown = ({ data }) => {
           display: 'flex',
           alignItems: 'center',
           gap: 1,
-          mb: 3,
+          mb: 2.5,
           pb: 2,
-          borderBottom: '1px solid rgba(148, 163, 184, 0.4)',
+          borderBottom: '1px solid rgba(148, 163, 184, 0.25)',
         }}
       >
-        <Box
-          sx={{
-            width: 6,
-            height: 24,
-            bgcolor: 'primary.main',
-            borderRadius: 1,
-          }}
-        />
-        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 16 }}>
-          Building Breakdown
-        </Typography>
+        <Box>
+          <Typography variant="overline" sx={{ letterSpacing: 1.6, color: 'text.secondary' }}>
+            Consumption Share
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 16, color: 'text.primary' }}>
+            Building Breakdown
+          </Typography>
+        </Box>
       </Box>
 
       <Stack spacing={0}>

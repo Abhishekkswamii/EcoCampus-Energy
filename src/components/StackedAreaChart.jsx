@@ -12,8 +12,11 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { Box, Paper, Typography, Stack, FormControl, Select, MenuItem, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 const StackedAreaChart = ({ view, height = 520 }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const [selectedDay, setSelectedDay] = useState('today');
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [chartType, setChartType] = useState('area');
@@ -136,8 +139,11 @@ const StackedAreaChart = ({ view, height = 520 }) => {
           elevation={8}
           sx={{
             p: 2,
-            bgcolor: '#ffffff',
-            border: '1px solid rgba(148, 163, 184, 0.4)',
+            bgcolor: 'background.paper',
+            border: (t) =>
+              t.palette.mode === 'dark'
+                ? '1px solid rgba(71, 85, 105, 0.6)'
+                : '1px solid rgba(148, 163, 184, 0.4)',
             minWidth: 160,
           }}
         >
@@ -179,13 +185,30 @@ const StackedAreaChart = ({ view, height = 520 }) => {
   return (
     <Paper
       sx={{
-        p: 3,
+        p: { xs: 2, sm: 2.5 },
+        borderRadius: 3,
+        bgcolor: 'background.paper',
+        border: (t) =>
+          t.palette.mode === 'dark'
+            ? '1px solid rgba(51, 65, 85, 0.9)'
+            : '1px solid rgba(148, 163, 184, 0.45)',
+        boxShadow: (t) =>
+          t.palette.mode === 'dark'
+            ? '0 20px 36px rgba(15, 23, 42, 0.5)'
+            : '0 18px 34px rgba(15, 23, 42, 0.1)',
+        height: '100%',
+        width: '100%',
       }}
     >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 16 }}>
-          24-Hour Energy Consumption
-        </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="overline" sx={{ letterSpacing: 1.6, color: 'text.secondary', fontSize: 11 }}>
+            Load Profile
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: 16, md: 18 } }}>
+            24-Hour Energy Consumption
+          </Typography>
+        </Box>
 
         <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
           <ToggleButtonGroup
@@ -193,12 +216,30 @@ const StackedAreaChart = ({ view, height = 520 }) => {
             size="small"
             value={chartType}
             onChange={(_, next) => next && setChartType(next)}
-            sx={{ bgcolor: '#fff', borderRadius: 999 }}
+            sx={{
+              bgcolor: isDark ? 'rgba(15, 23, 42, 0.6)' : '#f1f5f9',
+              borderRadius: 999,
+              border: isDark ? '1px solid rgba(71, 85, 105, 0.7)' : '1px solid rgba(148, 163, 184, 0.5)',
+              '& .MuiToggleButton-root': {
+                textTransform: 'none',
+                px: 2,
+                fontWeight: 600,
+                color: isDark ? 'rgba(226, 232, 240, 0.8)' : 'rgba(51, 65, 85, 0.9)',
+                border: 'none',
+              },
+              '& .MuiToggleButton-root.Mui-selected': {
+                bgcolor: isDark ? '#1e293b' : '#0f172a',
+                color: '#e2e8f0',
+              },
+              '& .MuiToggleButton-root.Mui-selected:hover': {
+                bgcolor: isDark ? '#334155' : '#1e293b',
+              },
+            }}
           >
-            <ToggleButton value="area" sx={{ textTransform: 'none', px: 2 }}>
+            <ToggleButton value="area">
               Area
             </ToggleButton>
-            <ToggleButton value="bar" sx={{ textTransform: 'none', px: 2 }}>
+            <ToggleButton value="bar">
               Bar
             </ToggleButton>
           </ToggleButtonGroup>
@@ -210,7 +251,10 @@ const StackedAreaChart = ({ view, height = 520 }) => {
             <Select
               value={selectedDay}
               onChange={(e) => setSelectedDay(e.target.value)}
-              sx={{ bgcolor: '#fff' }}
+              sx={{
+                bgcolor: isDark ? 'rgba(15, 23, 42, 0.6)' : '#f1f5f9',
+                borderRadius: 2,
+              }}
             >
               <MenuItem value="today">Today</MenuItem>
               <MenuItem value="yesterday">Yesterday</MenuItem>
@@ -225,7 +269,10 @@ const StackedAreaChart = ({ view, height = 520 }) => {
             <Select
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
-              sx={{ bgcolor: '#fff' }}
+              sx={{
+                bgcolor: isDark ? 'rgba(15, 23, 42, 0.6)' : '#f1f5f9',
+                borderRadius: 2,
+              }}
             >
               <MenuItem value="all">All Buildings</MenuItem>
               <MenuItem value="admin">Admin</MenuItem>
@@ -239,24 +286,39 @@ const StackedAreaChart = ({ view, height = 520 }) => {
 
       <ResponsiveContainer width="100%" height={height}>
         {chartType === 'bar' ? (
-          <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.35)" />
+          <BarChart data={chartData} margin={{ top: 10, right: 5, left: -10, bottom: 0 }}>
+            <CartesianGrid
+              strokeDasharray="0"
+              stroke={isDark ? 'rgba(148, 163, 184, 0.25)' : 'rgba(71, 85, 105, 0.35)'}
+            />
             <XAxis
               dataKey="time"
-              stroke="rgba(71, 85, 105, 0.8)"
+              stroke={isDark ? 'rgba(226, 232, 240, 0.7)' : 'rgba(71, 85, 105, 0.8)'}
               style={{ fontSize: 12 }}
-              tick={{ fill: 'rgba(71, 85, 105, 0.8)' }}
+              tick={{ fill: isDark ? 'rgba(226, 232, 240, 0.7)' : 'rgba(71, 85, 105, 0.8)' }}
+              tickLine={{ stroke: isDark ? 'rgba(226, 232, 240, 0.5)' : 'rgba(71, 85, 105, 0.6)' }}
             />
             <YAxis
-              stroke="rgba(71, 85, 105, 0.8)"
+              stroke={isDark ? 'rgba(226, 232, 240, 0.7)' : 'rgba(71, 85, 105, 0.8)'}
               style={{ fontSize: 12 }}
-              tick={{ fill: 'rgba(71, 85, 105, 0.8)' }}
+              tick={{ fill: isDark ? 'rgba(226, 232, 240, 0.7)' : 'rgba(71, 85, 105, 0.8)' }}
+              tickLine={{ stroke: isDark ? 'rgba(226, 232, 240, 0.5)' : 'rgba(71, 85, 105, 0.6)' }}
+              tickCount={6}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
               wrapperStyle={{ paddingTop: 20 }}
               iconType="circle"
-              formatter={(value) => <span style={{ color: 'rgba(71, 85, 105, 0.9)', fontSize: 13 }}>{value}</span>}
+              formatter={(value) => (
+                <span
+                  style={{
+                    color: isDark ? 'rgba(226, 232, 240, 0.8)' : 'rgba(71, 85, 105, 0.9)',
+                    fontSize: 13,
+                  }}
+                >
+                  {value}
+                </span>
+              )}
             />
             <Bar dataKey="Admin" stackId="1" fill="#f97316" radius={[6, 6, 0, 0]} />
             <Bar dataKey="Cafeteria" stackId="1" fill="#ef4444" radius={[6, 6, 0, 0]} />
@@ -264,7 +326,7 @@ const StackedAreaChart = ({ view, height = 520 }) => {
             <Bar dataKey="Library" stackId="1" fill="#3b82f6" radius={[6, 6, 0, 0]} />
           </BarChart>
         ) : (
-          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 10, right: 5, left: -10, bottom: 0 }}>
             <defs>
               <linearGradient id="colorAdmin" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#f97316" stopOpacity={0.8} />
@@ -283,23 +345,38 @@ const StackedAreaChart = ({ view, height = 520 }) => {
                 <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.3} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.35)" />
+            <CartesianGrid
+              strokeDasharray="0"
+              stroke={isDark ? 'rgba(148, 163, 184, 0.25)' : 'rgba(71, 85, 105, 0.35)'}
+            />
             <XAxis
               dataKey="time"
-              stroke="rgba(71, 85, 105, 0.8)"
+              stroke={isDark ? 'rgba(226, 232, 240, 0.7)' : 'rgba(71, 85, 105, 0.8)'}
               style={{ fontSize: 12 }}
-              tick={{ fill: 'rgba(71, 85, 105, 0.8)' }}
+              tick={{ fill: isDark ? 'rgba(226, 232, 240, 0.7)' : 'rgba(71, 85, 105, 0.8)' }}
+              tickLine={{ stroke: isDark ? 'rgba(226, 232, 240, 0.5)' : 'rgba(71, 85, 105, 0.6)' }}
             />
             <YAxis
-              stroke="rgba(71, 85, 105, 0.8)"
+              stroke={isDark ? 'rgba(226, 232, 240, 0.7)' : 'rgba(71, 85, 105, 0.8)'}
               style={{ fontSize: 12 }}
-              tick={{ fill: 'rgba(71, 85, 105, 0.8)' }}
+              tick={{ fill: isDark ? 'rgba(226, 232, 240, 0.7)' : 'rgba(71, 85, 105, 0.8)' }}
+              tickLine={{ stroke: isDark ? 'rgba(226, 232, 240, 0.5)' : 'rgba(71, 85, 105, 0.6)' }}
+              tickCount={6}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
               wrapperStyle={{ paddingTop: 20 }}
               iconType="circle"
-              formatter={(value) => <span style={{ color: 'rgba(71, 85, 105, 0.9)', fontSize: 13 }}>{value}</span>}
+              formatter={(value) => (
+                <span
+                  style={{
+                    color: isDark ? 'rgba(226, 232, 240, 0.8)' : 'rgba(71, 85, 105, 0.9)',
+                    fontSize: 13,
+                  }}
+                >
+                  {value}
+                </span>
+              )}
             />
             <Area
               type="monotone"

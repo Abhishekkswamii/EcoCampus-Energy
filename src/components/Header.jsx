@@ -5,16 +5,27 @@ import {
   Badge,
   Box,
   Button,
+  ButtonBase,
   Chip,
   IconButton,
   Stack,
   Toolbar,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
+import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
+import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import Logo from './Logo';
 
-const Header = ({ notifications, onNotificationClick, activeView, onViewChange }) => {
+const Header = ({
+  notifications,
+  onNotificationClick,
+  activeView,
+  onViewChange,
+  themeMode = 'light',
+  onToggleTheme,
+}) => {
   const count = Array.isArray(notifications) ? notifications.length : 0;
   const navItems = [
     { id: 'dashboard', label: 'Home' },
@@ -30,7 +41,8 @@ const Header = ({ notifications, onNotificationClick, activeView, onViewChange }
       elevation={0}
       sx={{
         backdropFilter: 'blur(10px)',
-        backgroundColor: 'rgba(248, 250, 252, 0.82)',
+        backgroundColor: (t) =>
+          t.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.9)' : 'rgba(248, 250, 252, 0.82)',
       }}
     >
       <Box sx={{ maxWidth: 1240, width: '100%', mx: 'auto' }}>
@@ -42,7 +54,31 @@ const Header = ({ notifications, onNotificationClick, activeView, onViewChange }
             flexWrap: 'wrap',
           }}
         >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+        <ButtonBase
+          onClick={() => onViewChange?.('dashboard')}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.25,
+            textAlign: 'left',
+            borderRadius: 2,
+            px: 0.5,
+            py: 0.25,
+            transition: 'transform 160ms ease, box-shadow 160ms ease',
+            '&:hover': {
+              transform: 'translateY(-1px)',
+              boxShadow: '0 10px 24px rgba(15, 23, 42, 0.12)',
+            },
+            '&:active': {
+              transform: 'translateY(0)',
+              boxShadow: '0 6px 14px rgba(15, 23, 42, 0.16)',
+            },
+            '&:focus-visible': {
+              outline: '2px solid rgba(37, 99, 235, 0.6)',
+              outlineOffset: 2,
+            },
+          }}
+        >
           <Box
             sx={{
               width: 38,
@@ -63,7 +99,7 @@ const Header = ({ notifications, onNotificationClick, activeView, onViewChange }
               See the Power. Stop the Waste.
             </Typography>
           </Box>
-        </Box>
+        </ButtonBase>
 
         <Stack
           direction="row"
@@ -101,6 +137,11 @@ const Header = ({ notifications, onNotificationClick, activeView, onViewChange }
               <NotificationsRoundedIcon />
             </Badge>
           </IconButton>
+          <Tooltip title={themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
+            <IconButton onClick={onToggleTheme} aria-label="Toggle theme">
+              {themeMode === 'dark' ? <LightModeRoundedIcon /> : <DarkModeRoundedIcon />}
+            </IconButton>
+          </Tooltip>
           <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32, fontSize: 13 }}>SG</Avatar>
         </Stack>
         </Toolbar>
