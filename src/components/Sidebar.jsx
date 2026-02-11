@@ -4,7 +4,7 @@ import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import BarChartRoundedIcon from '@mui/icons-material/BarChartRounded';
 import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
-import BoltRoundedIcon from '@mui/icons-material/BoltRounded';
+import Logo from './Logo';
 
 const Sidebar = ({ activeView = 'dashboard', onViewChange }) => {
   const menuItems = [
@@ -35,23 +35,19 @@ const Sidebar = ({ activeView = 'dashboard', onViewChange }) => {
             width: 36,
             height: 36,
             borderRadius: '8px',
-            bgcolor: 'primary.main',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <BoltRoundedIcon sx={{ color: '#fff', fontSize: 24 }} />
+          <Logo size={30} />
         </Box>
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 700, color: '#fff' }}>
-            EcoCampus
+            WattWise
           </Typography>
           <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 11, display: 'block' }}>
-            Energy Monitor
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: 10, display: 'block' }}>
-            Real-time campus energy monitoring
+            See the Power. Stop the Waste.
           </Typography>
         </Box>
       </Box>

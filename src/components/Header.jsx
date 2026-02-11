@@ -11,8 +11,8 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import BoltRoundedIcon from '@mui/icons-material/BoltRounded';
 import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
+import Logo from './Logo';
 
 const Header = ({ notifications, onNotificationClick, activeView, onViewChange }) => {
   const count = Array.isArray(notifications) ? notifications.length : 0;
@@ -50,19 +50,17 @@ const Header = ({ notifications, onNotificationClick, activeView, onViewChange }
               borderRadius: 2,
               display: 'grid',
               placeItems: 'center',
-              bgcolor: 'primary.main',
-              color: 'primary.contrastText',
               boxShadow: (t) => `0 12px 30px ${t.palette.primary.main}33`,
             }}
           >
-            <BoltRoundedIcon />
+            <Logo size={34} />
           </Box>
           <Box>
             <Typography variant="h6" sx={{ lineHeight: 1.1 }}>
-              EcoCampus Energy
+              WattWise
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Smart campus operations console
+              See the Power. Stop the Waste.
             </Typography>
           </Box>
         </Box>
